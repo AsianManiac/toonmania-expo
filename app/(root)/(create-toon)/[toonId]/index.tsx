@@ -5,11 +5,12 @@ import {
   ScrollView,
   ActivityIndicator,
   Switch,
+  ToastAndroid,
 } from "react-native";
 import { z } from "zod";
 import { router } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Picker } from "@react-native-picker/picker";
 
 import { axios } from "@/lib/axiosClient";
@@ -19,6 +20,8 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import { uploadFile } from "@/lib/fileUpload";
 import { Image } from "expo-image";
 import { ToonProps } from "@/types/type";
+import Loader from "@/components/app/Loader";
+import { Ionicons } from "@expo/vector-icons";
 
 // Zod schema for validation
 const updateToonSchema = z.object({
@@ -55,101 +58,66 @@ export default function UpdateToonForm() {
   };
 
   // Fetch Toon Data for update
+  const fetchToon = async () => {
+    try {
+      setIsLoading(true);
+      await axios
+        .get(`/toon/${toonId}`)
+        .then(({ data }) => {
+          setToon(data.results);
+          setToonData({
+            description: data.results.description || "",
+            coverImage: data.results.coverImage || "",
+            isPublished: data.results.isPublished || false,
+            genreId: data.results.genreId || "",
+          });
+          setIsLoading(false);
+        })
+        .catch((response) => {
+          console.error(response.data.message);
+        });
+    } catch (error: any) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // Fetch genres to populate the picker
+  const fetchGenres = async () => {
+    try {
+      await axios
+        .get(`/genre`)
+        .then(({ data }) => {
+          setGenres(data.results);
+        })
+        .catch((response) => {
+          console.log("ELS", response.data.message);
+        });
+    } catch (error: any) {
+      console.error(error.response.data.message);
+    }
+  };
+
   useEffect(() => {
-    axios
-      .get(`/toon/${toonId}`)
-      .then(({ data }) => {
-        setToon(data.results);
-      })
-      .catch((response) => {
-        console.error(response.data.message);
-      });
+    fetchToon();
+    fetchGenres();
   }, [toonId]);
 
-  if (!toon) {
-    return <Text>Loading...</Text>;
-  }
-
-  const requiredFields = [
-    toon.title,
-    toon.authorId,
-    toon.description,
-    toon.coverImage,
-    toon.genreId,
-    // toon.episodes.some((episode) => episode.isPublished),
-  ];
+  // const requiredFields = [
+  //   toon.title,
+  //   toon.authorId,
+  //   toon.description,
+  //   toon.coverImage,
+  //   toon.genreId,
+  //   // toon.episodes.some((episode) => episode.isPublished),
+  // ];
 
   useEffect(() => {
-    // Fetch genres to populate the picker
-    const fetchGenres = async () => {
-      try {
-        await axios
-          .get(`/genre`)
-          .then(({ data }) => {
-            setGenres(data.results);
-          })
-          .catch((response) => {
-            console.log(response.data.message);
-          });
-      } catch (error: any) {
-        console.error(error.response.data.message);
-      }
-    };
-
-    fetchGenres();
-  }, []);
-
-  useEffect(() => {
-    const filled = Object.values({ ...toonData, episodeTitle }).filter(
+    const filled = Object.values(toonData).filter(
       (value) => value !== undefined && value !== ""
     ).length;
     setFilledFields(filled);
   }, [toonData]);
-
-  // Pick an image from the device
-  const pickImageAsync = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      const selectedAsset = result.assets![0];
-
-      console.log("RESULTS", selectedAsset);
-      // Fetch the image file using fetch API
-      try {
-        const response = await fetch(selectedAsset.uri);
-        const blob = await response.blob();
-        // const file = new File([blob], selectedAsset.fileName || "image.jpg", {
-        //   type: selectedAsset.type || "image/jpeg",
-        // });
-        const file = selectedAsset;
-
-        const upload = {
-          name: file?.fileName!.split(".")[0],
-          uri: file.uri,
-          type: file.mimeType!.split("/")[0],
-          size: file.fileSize,
-          base64: file.base64,
-          assetId: file.assetId,
-        };
-        // Upload the selected image file
-        const url = await uploadFile(upload, "avatar");
-        setImageUrl(url);
-        handleChange("coverImage", url);
-      } catch (error) {
-        setError((prevError) => ({
-          ...prevError,
-          coverImage: "Failed to upload cover image",
-        }));
-      }
-    } else {
-      alert("You did not select any image.");
-    }
-  };
 
   const handleChange = (name: string, value: string | boolean) => {
     setToonData((prevData) => ({
@@ -161,7 +129,24 @@ export default function UpdateToonForm() {
   const handleEpisodeTitleChange = (value: string) => {
     setEpisodeTitle(value);
   };
-  console.log(toonData);
+
+  const onCreateEpisode = () => {
+    const validation = createEpisodeSchema.safeParse({ title: episodeTitle });
+
+    if (!validation.success) {
+      setErrors({ episodeTitle: validation.error.errors[0]?.message });
+      return;
+    }
+
+    setErrors({});
+    setIsLoading(true);
+    setTimeout(() => {
+      // Simulate episode creation
+      const newEpisodeId = "new-episode-id"; // Replace with real episode ID if needed
+      router.push(`/(root)/(create-toon)/ywcwicbwwbikac/${newEpisodeId}`);
+      setIsLoading(false);
+    }, 1000);
+  };
 
   const onSubmit = async () => {
     console.log(JSON.stringify(toonData));
@@ -184,10 +169,12 @@ export default function UpdateToonForm() {
       await axios
         .patch(`/toon/update-toon/${toonId}`, toonData)
         .then(({ data }) => {
+          ToastAndroid.show(data.message, ToastAndroid.TOP);
           console.log(data.message, data.results);
         })
         .catch(({ response }) => {
-          console.log(response.data.message);
+          ToastAndroid.show(response.data.message, ToastAndroid.TOP);
+          console.log("ERROR", response.data.message);
         });
     } catch (error: any) {
       console.error(error.response.data.message);
@@ -196,36 +183,27 @@ export default function UpdateToonForm() {
     }
   };
 
-  const onCreateEpisode = () => {
-    const validation = createEpisodeSchema.safeParse({ title: episodeTitle });
-
-    if (!validation.success) {
-      setErrors({ episodeTitle: validation.error.errors[0]?.message });
-      return;
-    }
-
-    setErrors({});
-    setIsLoading(true);
-    setTimeout(() => {
-      // Simulate episode creation
-      const newEpisodeId = "new-episode-id"; // Replace with real episode ID if needed
-      router.push(`/(root)/(create-toon)/ywcwicbwwbikac/${newEpisodeId}`);
-      setIsLoading(false);
-    }, 1000);
-  };
+  if (!toon) {
+    return <Loader message="Loading toon information..." />;
+  }
 
   return (
     <View style={styles.container}>
+      {!toon.isPublished && (
+        <View className="bg-yellow-300/80 border-yellow-30 text-primary mt-2 h-8 boder text-center flex flex-row items-center justify-center">
+          <Ionicons name="warning" size={16} color="black" />
+          <Text className=" ml-1" style={{ color: "hsl(142.1 76.2% 36.3%)" }}>
+            This toon has not been published yet!
+          </Text>
+        </View>
+      )}
       <ScrollView
         style={styles.container}
         className="pb-6"
         showsVerticalScrollIndicator={false}
       >
-        <Text className="font-bold text-3xl text-[#2a9d8f] mb-7 pt-5">
-          Update Toon
-        </Text>
-        <Text className="text-purple-500 text-base font-semibold underline">
-          {toonId}
+        <Text className="font-bold capitalize text-3xl text-[#2a9d8f] mb-7 pt-5">
+          Update Toon - {toon.title}
         </Text>
 
         {/* Description Field */}
@@ -234,33 +212,9 @@ export default function UpdateToonForm() {
           placeholder="Description"
           value={toonData.description}
           errors={errors.description}
+          editable={true}
           onChangeText={(value) => handleChange("description", value)}
         />
-
-        {/* Cover Image Field */}
-        <View style={styles.imageContainer}>
-          <CustomButton title="Pick Cover Image" onPress={pickImageAsync} />
-          {selectedFile && (
-            <Image
-              source={{
-                uri: selectedFile,
-              }}
-              style={styles.imagePreview}
-              contentFit="cover"
-              transition={1000}
-            />
-          )}
-          {imageUrl && (
-            <Image
-              source={{
-                uri: imageUrl,
-              }}
-              style={styles.imagePreview}
-              contentFit="cover"
-              transition={1000}
-            />
-          )}
-        </View>
 
         {/* Is Published Field */}
         <View style={styles.switchContainer}>
@@ -290,10 +244,10 @@ export default function UpdateToonForm() {
         </View>
         {errors.genreId && <Text style={styles.error}>{errors.genreId}</Text>}
 
+        {/* Progress Bar */}
         <View style={styles.progressContainer}>
           <Text style={styles.progressText}>
-            Fields filled: {filledFields}/
-            {Object.keys({ ...toonData, episodeTitle }).length}
+            Fields filled: {filledFields}/{Object.keys(toonData).length}
           </Text>
           <View
             style={[

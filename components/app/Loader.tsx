@@ -1,25 +1,47 @@
-import { View, ActivityIndicator, Dimensions, Platform } from "react-native";
+import React from "react";
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  Dimensions,
+  Platform,
+  StyleSheet,
+} from "react-native";
 
-const Loader = (isLoading: boolean) => {
-  const osName = Platform.OS;
-  const screenHeight = Dimensions.get("screen").height;
+const { height: screenHeight } = Dimensions.get("window");
+const osName = Platform.OS;
 
-  if (!isLoading) return null;
-
+const Loader = ({
+  message = "Loading...",
+  size = osName === "ios" ? "large" : 50,
+  color = "#4F46E5",
+  customStyles = {},
+  classname = "",
+}) => {
   return (
-    <View
-      className="absolute flex justify-center items-center w-full h-full bg-primary/60 z-10"
-      style={{
-        height: screenHeight,
-      }}
-    >
+    <View style={[styles.container, { ...customStyles }]} className={classname}>
+      <Text style={styles.text}>{message}</Text>
       <ActivityIndicator
-        animating={isLoading}
-        color="#fff"
+        color="hsl(262.1, 83.3%, 57.8%)"
         size={osName === "ios" ? "large" : 50}
       />
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    zIndex: 10,
+  },
+  text: {
+    color: "hsl(262.1, 83.3%, 57.8%)",
+    fontSize: 18,
+    marginBottom: 20,
+  },
+});
 
 export default Loader;

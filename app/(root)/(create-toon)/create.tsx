@@ -1,25 +1,121 @@
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  TextInput,
-  Button,
-  Text,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
-import { z } from "zod";
-import { useRoute } from "@react-navigation/native";
 import CreateToonForm from "@/components/app/forms/CreateToonForm";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  FlatList,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+import Loader from "@/components/app/Loader";
+import { blurhash } from "@/constants";
+import { axios } from "@/lib/axiosClient";
+import { Entypo } from "@expo/vector-icons";
+import { Image } from "expo-image";
+import { router } from "expo-router";
+import { z } from "zod";
 
 const CreateToon = () => {
+  const [toons, setToons] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Fetch toons
+  const fetchToons = async () => {
+    try {
+      setIsLoading(true);
+      await axios
+        .get(`/toon`)
+        .then(({ data }) => {
+          setToons(data.results);
+        })
+        .catch(({ response }) => {
+          console.log(response.data.message);
+        });
+    } catch (error: any) {
+      console.error(error.response.data.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchToons();
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    try {
+      setRefreshing(true);
+      setTimeout(() => {
+        router.replace("/(create-toon)/create");
+        fetchToons();
+        setRefreshing(false);
+      }, 500);
+    } catch (error: any) {
+      console.log(error.response);
+    }
+  }, []);
+
+  const renderItem = ({ item }: { item: any }) => (
+    <Pressable
+      onPress={() => router.push(`/(root)/(create-toon)/${item.id}`)}
+      className={"flex-row items-center bg-white mb-2 rounded-lg shadow"}
+    >
+      <Image
+        source={{ uri: item.coverImage }}
+        className={"w-20 h-20 rounded-l-lg"}
+        placeholder={{ blurhash }}
+      />
+      <View className={"flex-1 ml-2"}>
+        <Text className={"text-lg text-primary font-bold"} numberOfLines={1}>
+          {item.title}
+        </Text>
+        <Text className={"text-gray-600"} numberOfLines={1}>
+          {item.description}
+        </Text>
+        <Text className={"text-gray-400"}>Title No: {item.titleNo}</Text>
+      </View>
+      <TouchableOpacity
+        className={"p-2"}
+        onPress={() => {
+          // Implement dropdown actions or use a dropdown library here
+        }}
+      >
+        <Entypo name="dots-three-vertical" size={24} color="black" />
+      </TouchableOpacity>
+    </Pressable>
+  );
+
   return (
-    <ScrollView style={styles.container}>
-      {/* <CreateGenreForm /> */}
-      <CreateToonForm />
-    </ScrollView>
+    <>
+      <FlatList
+        data={toons}
+        renderItem={renderItem}
+        style={styles.container}
+        keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 4 }}
+        ListHeaderComponent={<CreateToonForm />}
+        ListFooterComponent={<Text></Text>}
+        ListFooterComponentStyle={{ paddingBottom: 20 }}
+        ListEmptyComponent={
+          isLoading ? (
+            <Loader message="Loading toons and authors..." classname="pt-4" />
+          ) : (
+            <View className="">
+              <Text className="text-xl text-center text-rose-500 font-semibold">
+                No toons available
+              </Text>
+            </View>
+          )
+        }
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      />
+    </>
   );
 };
 
@@ -27,35 +123,9 @@ export default CreateToon;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 20,
     backgroundColor: "#e0f7e9",
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-    color: "#2a9d8f",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#9ae5d4",
-    padding: 10,
-    marginBottom: 10,
-    backgroundColor: "#f1fcf8",
-  },
-  error: {
-    color: "red",
-  },
-  progressContainer: {
-    marginVertical: 20,
-  },
-  progressText: {
-    fontSize: 16,
-    color: "#264653",
-  },
-  progressBar: {
-    height: 10,
-    backgroundColor: "#2a9d8f",
-    borderRadius: 5,
   },
 });

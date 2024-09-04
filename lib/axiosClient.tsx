@@ -28,7 +28,7 @@ const setBearerToken = (token: string) => {
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 };
 setBearerToken(
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjFjOWQzMWRkLTEyOGItNDQ0ZC1hNzZkLWViZjMxMGZhYTBlNSIsImlhdCI6MTcyNTM4MTk1MiwiZXhwIjoxNzI1NDY4MzUyfQ._9cTtnt2p5EfYrQN5-KdWNycoX1vII2jJZmNeOhljlM"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjFjOWQzMWRkLTEyOGItNDQ0ZC1hNzZkLWViZjMxMGZhYTBlNSIsImlhdCI6MTcyNTQ2ODM5NywiZXhwIjoxNzI1NTU0Nzk3fQ.iiGGL862IegIjnyIOaOMRKrE2bYTG_Nzf8cf2vN-2A4"
 );
 
 export { axios, setBearerToken };
