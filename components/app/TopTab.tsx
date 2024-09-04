@@ -1,6 +1,6 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import React from "react";
 import { AntDesign, Feather } from "@expo/vector-icons";
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 
 const TopTab = ({ state, descriptors, navigation }: any) => {
   const icons = {

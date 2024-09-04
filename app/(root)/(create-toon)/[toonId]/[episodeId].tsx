@@ -1,17 +1,16 @@
+import { useRoute } from "@react-navigation/native";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import {
-  View,
-  TextInput,
-  Button,
-  Text,
-  StyleSheet,
-  ScrollView,
   ActivityIndicator,
+  Button,
+  ScrollView,
+  StyleSheet,
   Switch,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
-import axios from "axios";
-import { useRoute } from "@react-navigation/native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function UpdateEpisode() {
   const [episodeData, setEpisodeData] = useState({});

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { FlatList, StyleSheet } from "react-native";
 
 import SearchItem from "./SearchItem";

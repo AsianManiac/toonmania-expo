@@ -1,6 +1,5 @@
 import CustomButton from "@/components/app/CustomButton";
 import InputField from "@/components/app/InputField";
-import OAuth from "@/components/app/OAuth";
 import { icons, images } from "@/constants";
 import { userSchema } from "@/lib/schema";
 import { UserAccount, VerificationError } from "@/types/type";

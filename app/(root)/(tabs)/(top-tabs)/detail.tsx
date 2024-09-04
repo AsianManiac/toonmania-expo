@@ -1,13 +1,10 @@
 import { useCallback, useState } from "react";
-import { FlatList, RefreshControl, Text, View } from "react-native";
+import { FlatList, RefreshControl, View } from "react-native";
 
-import { blurhash } from "@/constants";
-import { homeDateToon } from "@/constants/home-webtoon";
-import { Image } from "expo-image";
-import { router } from "expo-router";
 import ToonFlexItem from "@/components/app/ToonFlexItem";
-import { getAverageLikedToons } from "@/hooks/fetchToons";
 import { comcom } from "@/constants/comcom";
+import { getAverageLikedToons } from "@/hooks/fetchToons";
+import { router } from "expo-router";
 
 function shuffle<T>(array: T[]): T[] {
   const newArray = [...array];

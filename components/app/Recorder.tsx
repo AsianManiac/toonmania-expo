@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, Button } from "react-native";
-import React, { useState } from "react";
 import { Audio } from "expo-av";
+import React, { useState } from "react";
+import { Button, StyleSheet, View } from "react-native";
 
 const Recorder = () => {
   const [recording, setRecording] = useState();

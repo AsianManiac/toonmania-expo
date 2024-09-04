@@ -1,27 +1,24 @@
+import { Picker } from "@react-native-picker/picker";
+import { router } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
   ActivityIndicator,
+  ScrollView,
+  StyleSheet,
   Switch,
+  Text,
   ToastAndroid,
+  View,
 } from "react-native";
 import { z } from "zod";
-import { router } from "expo-router";
-import * as ImagePicker from "expo-image-picker";
-import React, { useEffect, useMemo, useState } from "react";
-import { Picker } from "@react-native-picker/picker";
 
-import { axios } from "@/lib/axiosClient";
-import InputField from "@/components/app/InputField";
 import CustomButton from "@/components/app/CustomButton";
-import { useRoute, useNavigation } from "@react-navigation/native";
-import { uploadFile } from "@/lib/fileUpload";
-import { Image } from "expo-image";
-import { ToonProps } from "@/types/type";
+import InputField from "@/components/app/InputField";
 import Loader from "@/components/app/Loader";
+import { axios } from "@/lib/axiosClient";
+import { ToonProps } from "@/types/type";
 import { Ionicons } from "@expo/vector-icons";
+import { useRoute } from "@react-navigation/native";
 
 // Zod schema for validation
 const updateToonSchema = z.object({
@@ -49,8 +46,6 @@ export default function UpdateToonForm() {
   const [error, setError] = React.useState<Record<string, string>>({});
   const [filledFields, setFilledFields] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<string | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const route = useRoute();
 
   const { toonId } = route.params as {
@@ -102,15 +97,6 @@ export default function UpdateToonForm() {
     fetchToon();
     fetchGenres();
   }, [toonId]);
-
-  // const requiredFields = [
-  //   toon.title,
-  //   toon.authorId,
-  //   toon.description,
-  //   toon.coverImage,
-  //   toon.genreId,
-  //   // toon.episodes.some((episode) => episode.isPublished),
-  // ];
 
   useEffect(() => {
     const filled = Object.values(toonData).filter(

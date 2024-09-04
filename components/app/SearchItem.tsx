@@ -1,6 +1,6 @@
-import { View, Text, Pressable, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { Pressable, Text, TouchableOpacity, View } from "react-native";
 
 const SearchItem = ({
   text,

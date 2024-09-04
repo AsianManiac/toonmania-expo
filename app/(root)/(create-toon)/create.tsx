@@ -16,7 +16,6 @@ import { axios } from "@/lib/axiosClient";
 import { Entypo } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { z } from "zod";
 
 const CreateToon = () => {
   const [toons, setToons] = useState<any[]>([]);

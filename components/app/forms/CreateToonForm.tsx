@@ -1,22 +1,11 @@
-import { blurhash } from "@/constants";
 import { axios } from "@/lib/axiosClient";
-import { Entypo } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
-import { Image } from "expo-image";
 import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { z } from "zod";
 import CustomButton from "../CustomButton";
 import InputField from "../InputField";
-import Loader from "../Loader";
 
 // Zod schema for validation
 const toonSchema = z.object({

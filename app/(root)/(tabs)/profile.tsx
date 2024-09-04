@@ -12,7 +12,6 @@ import InputField from "@/components/app/InputField";
 import CustomButton from "@/components/app/CustomButton";
 
 export default function Profile() {
-  const [loading, setLoading] = useState<boolean>(true);
   const [apiUrl, setApiUrl] = useState<string>("");
   const [sound, setSound] = useState();
 

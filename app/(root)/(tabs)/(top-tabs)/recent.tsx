@@ -1,23 +1,20 @@
-import { blurhash } from "@/constants";
 import { homeDateToon } from "@/constants/home-webtoon";
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons";
-import { Image } from "expo-image";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useState } from "react";
 import {
   FlatList,
-  Pressable,
   RefreshControl,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 
-import { BlurView } from "expo-blur";
-import { getAverageLikedToons } from "@/hooks/fetchToons";
-import { comcom } from "@/constants/comcom";
 import ToonFlexItem from "@/components/app/ToonFlexItem";
+import { comcom } from "@/constants/comcom";
+import { getAverageLikedToons } from "@/hooks/fetchToons";
+import { BlurView } from "expo-blur";
 
 const Recent = () => {
   const [refreshing, setRefreshing] = useState(false);

@@ -1,11 +1,11 @@
-import { AntDesign, FontAwesome } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
   Animated,
   Share,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 const FloatingButton = () => {
